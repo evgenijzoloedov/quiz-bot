@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  # MongoDB only for development
+  mongo:
+    image: mongo:6.0
+    container_name: quiz-mongo-dev
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data_dev:/data/db
+
+volumes:
+  mongo_data_dev:
+

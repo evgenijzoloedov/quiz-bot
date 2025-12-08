@@ -1,0 +1,15 @@
+node_modules/
+.env
+uploads/images/*
+uploads/videos/*
+uploads/pdfs/*
+uploads/temp/*
+uploads/fail-images/*
+!uploads/images/.gitkeep
+!uploads/videos/.gitkeep
+!uploads/pdfs/.gitkeep
+!uploads/temp/.gitkeep
+!uploads/fail-images/.gitkeep
+.DS_Store
+*.log
+
