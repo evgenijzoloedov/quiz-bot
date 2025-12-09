@@ -13,21 +13,10 @@ const { initBot } = require('./bot');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-const allowedOrigins = ['*'];
-
+// Middleware - Allow all origins
 app.use(
 	cors({
-		origin: (origin, callback) => {
-			// Allow requests with no origin (like mobile apps, Postman, or same-origin requests)
-			if (!origin || allowedOrigins.includes(origin)) {
-				callback(null, true);
-			} else {
-				callback(null, true); // Allow all origins in production for now
-				// In production, you might want to be more strict:
-				// callback(new Error('Not allowed by CORS'));
-			}
-		},
+		origin: true, // Allow all origins
 		credentials: true,
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 		allowedHeaders: ['Content-Type', 'Authorization'],
