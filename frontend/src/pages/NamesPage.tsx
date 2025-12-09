@@ -286,7 +286,7 @@ export const NamesPage: React.FC = () => {
         </CardContent>
 
         {/* Pagination */}
-        {data?.pagination && data.pagination.pages > 1 && (
+        {data?.pagination && data.pagination.pages && data.pagination.pages > 1 && (
           <div className="px-6 py-4 border-t border-[#2a2a3a] flex items-center justify-between">
             <p className="text-sm text-[#606070]">
               Страница {data.pagination.page} из {data.pagination.pages}
@@ -304,7 +304,7 @@ export const NamesPage: React.FC = () => {
                 variant="secondary"
                 size="sm"
                 onClick={() => setPage(p => p + 1)}
-                disabled={page >= (data.pagination.pages || 1)}
+                disabled={page >= data.pagination.pages}
               >
                 Далее
               </Button>

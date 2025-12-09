@@ -4,14 +4,18 @@ import { cn } from '../../utils/cn';
 interface CardProps {
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export const Card: React.FC<CardProps> = ({ children, className }) => {
+export const Card: React.FC<CardProps> = ({ children, className, style }) => {
   return (
-    <div className={cn(
-      'bg-[#12121a] border border-[#2a2a3a] rounded-xl',
-      className
-    )}>
+    <div 
+      className={cn(
+        'bg-[#12121a] border border-[#2a2a3a] rounded-xl',
+        className
+      )}
+      style={style}
+    >
       {children}
     </div>
   );

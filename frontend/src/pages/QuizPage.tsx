@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { quizApi, questionsApi } from '../api';
-import type { Quiz, Question } from '../types';
-import { Button, Card, CardContent, Input, Modal, FileUpload } from '../components/ui';
+import { Button, Card, CardContent, Modal, FileUpload } from '../components/ui';
 import { 
   Video, 
   Plus, 
-  Edit, 
   Trash2,
   ArrowUp,
   ArrowDown

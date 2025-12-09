@@ -12,6 +12,7 @@ interface FileUploadProps {
 	onChange: (file: File | null) => void;
 	error?: string;
 	helperText?: string;
+	required?: boolean;
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({

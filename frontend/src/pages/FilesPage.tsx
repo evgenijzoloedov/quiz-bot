@@ -11,7 +11,7 @@ import {
 	CardTitle,
 	Modal,
 } from '../components/ui';
-import { formatDate, formatFileSize } from '../utils/formatters';
+import { formatFileSize } from '../utils/formatters';
 import {
 	Upload,
 	Trash2,

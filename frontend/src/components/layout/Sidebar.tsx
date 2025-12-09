@@ -9,7 +9,6 @@ import {
   FolderOpen,
   LogOut,
   Bot,
-  FileText,
   Video,
   Image as ImageIcon
 } from 'lucide-react';
