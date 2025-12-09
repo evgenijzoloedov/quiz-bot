@@ -27,14 +27,6 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Uploads (keep directories but ignore contents)
-backend/uploads/images/*
-backend/uploads/pdfs/*
-backend/uploads/temp/*
-!backend/uploads/images/.gitkeep
-!backend/uploads/pdfs/.gitkeep
-!backend/uploads/temp/.gitkeep
-
 # Docker volumes
 mongo_data/
 

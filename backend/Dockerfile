@@ -12,7 +12,7 @@ RUN npm ci --omit=dev
 COPY backend/ .
 
 # Create upload directories (добавьте fail-images)
-# RUN mkdir -p uploads/images uploads/pdfs uploads/temp uploads/videos uploads/fail-images
+RUN mkdir -p uploads/images uploads/pdfs uploads/temp uploads/videos uploads/fail-images
 
 # Expose port
 EXPOSE 5000
