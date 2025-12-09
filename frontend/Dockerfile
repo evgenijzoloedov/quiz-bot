@@ -3,14 +3,14 @@ FROM node:18-alpine as build
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files (works from root or frontend directory)
+COPY frontend/package.json frontend/package-lock.json ./
 
 # Install dependencies
 RUN npm ci
 
 # Copy source code
-COPY . .
+COPY frontend/ .
 
 # Build application
 RUN npm run build
@@ -25,7 +25,7 @@ RUN apk add --no-cache gettext
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Copy nginx configuration template
-COPY nginx.conf /etc/nginx/templates/default.conf.template
+COPY frontend/nginx.conf /etc/nginx/templates/default.conf.template
 
 # Expose port (Railway will set PORT env var)
 EXPOSE 80
