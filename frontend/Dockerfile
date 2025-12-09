@@ -1,69 +1,30 @@
-# Build stage
-FROM node:20-alpine as build
+# Stage 1: Build React app
+FROM node:18-alpine as builder
 
 WORKDIR /app
 
-# Build arguments
-ARG VITE_API_URL=http://localhost:5000
-ARG VITE_APP_NAME=Quiz Bot
+COPY package*.json ./
+RUN npm install --omit=dev
 
-# Set environment variables for build
-ENV VITE_API_URL=$VITE_API_URL
-ENV VITE_APP_NAME=$VITE_APP_NAME
-
-# Copy package files
-COPY frontend/package.json frontend/package-lock.json ./
-
-# Install dependencies
-RUN npm ci
-
-# Copy source code
-COPY frontend/ .
-
-# Build application
+COPY . .
 RUN npm run build
 
-# Production stage
+# Stage 2: Serve with Nginx
 FROM nginx:alpine
 
-# Install envsubst for environment variable substitution
-RUN apk add --no-cache gettext
+EXPOSE 3000
 
-# Copy built files from build stage
-COPY --from=build /app/dist /usr/share/nginx/html
+# Copy nginx config как template
+COPY nginx.conf /etc/nginx/nginx.conf.template
 
-# Copy nginx configuration template
-COPY frontend/nginx.conf /etc/nginx/templates/default.conf.template
+# Создай entrypoint скрипт
+RUN echo '#!/bin/sh\n\
+envsubst < /etc/nginx/nginx.conf.template > /etc/nginx/conf.d/default.conf\n\
+nginx -g "daemon off;"\n\
+' > /entrypoint.sh && chmod +x /entrypoint.sh
 
-# Expose port
-EXPOSE 80
+# Copy built app
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Create startup script
-RUN cat > /start.sh << 'EOF'
-#!/bin/sh
-set -e
-
-# Set defaults for environment variables
-export PORT=${PORT:-80}
-export BACKEND_URL=${BACKEND_URL:-http://localhost:5000}
-
-echo "Starting nginx with:"
-echo "  PORT=$PORT"
-echo "  BACKEND_URL=$BACKEND_URL"
-
-# Replace variables in nginx config
-envsubst '${PORT},${BACKEND_URL}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf
-
-# Show generated config for debugging
-echo "=== Generated nginx config ==="
-head -20 /etc/nginx/conf.d/default.conf
-echo "=============================="
-
-# Start nginx
-exec nginx -g 'daemon off;'
-EOF
-
-RUN chmod +x /start.sh
-
-# Run with startup script
-CMD ["/start.sh"]
+# Start with entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
