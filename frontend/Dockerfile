@@ -1,9 +1,9 @@
 # Build stage
-FROM node:18-alpine as build
+FROM node:20-alpine as build
 
 WORKDIR /app
 
-# Build arguments for environment variables
+# Build arguments
 ARG VITE_API_URL=http://localhost:5000
 ARG VITE_APP_NAME=Quiz Bot
 
@@ -20,7 +20,7 @@ RUN npm ci
 # Copy source code
 COPY frontend/ .
 
-# Build application with environment variables
+# Build application
 RUN npm run build
 
 # Production stage
@@ -38,13 +38,32 @@ COPY frontend/nginx.conf /etc/nginx/templates/default.conf.template
 # Expose port
 EXPOSE 80
 
-# Entrypoint script for dynamic configuration
-RUN echo '#!/bin/sh' > /docker-entrypoint.sh && \
-    echo 'export PORT=${PORT:-80}' >> /docker-entrypoint.sh && \
-    echo 'export BACKEND_URL=${BACKEND_URL:-http://localhost:5000}' >> /docker-entrypoint.sh && \
-    echo 'envsubst '\''${PORT} ${BACKEND_URL}'\'' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf' >> /docker-entrypoint.sh && \
-    echo 'nginx -g '\''daemon off;'\''' >> /docker-entrypoint.sh && \
-    chmod +x /docker-entrypoint.sh
+# Create startup script
+RUN cat > /start.sh << 'EOF'
+#!/bin/sh
+set -e
 
-# Run with proper entrypoint
-CMD ["/docker-entrypoint.sh"]
+# Set defaults for environment variables
+export PORT=${PORT:-80}
+export BACKEND_URL=${BACKEND_URL:-http://localhost:5000}
+
+echo "Starting nginx with:"
+echo "  PORT=$PORT"
+echo "  BACKEND_URL=$BACKEND_URL"
+
+# Replace variables in nginx config
+envsubst '${PORT},${BACKEND_URL}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf
+
+# Show generated config for debugging
+echo "=== Generated nginx config ==="
+head -20 /etc/nginx/conf.d/default.conf
+echo "=============================="
+
+# Start nginx
+exec nginx -g 'daemon off;'
+EOF
+
+RUN chmod +x /start.sh
+
+# Run with startup script
+CMD ["/start.sh"]
