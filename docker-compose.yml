@@ -12,7 +12,7 @@ services:
     volumes:
       - mongo_data:/data/db
     ports:
-      - "27017:27017"
+      - '27017:27017'
     networks:
       - quiz-network
 
@@ -34,7 +34,7 @@ services:
     volumes:
       - uploads_data:/app/uploads
     ports:
-      - "5000:5000"
+      - '5000:5000'
     depends_on:
       - mongo
     networks:
@@ -46,7 +46,7 @@ services:
     container_name: quiz-frontend
     restart: unless-stopped
     ports:
-      - "3000:80"
+      - '3000:80'
     depends_on:
       - backend
     networks:
@@ -59,4 +59,3 @@ volumes:
 networks:
   quiz-network:
     driver: bridge
-
