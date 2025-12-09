@@ -15,7 +15,7 @@ FROM nginx:alpine
 EXPOSE 3000
 
 # Copy nginx config как template
-COPY nginx.conf /etc/nginx/nginx.conf.template
+COPY frontend/nginx.conf /etc/nginx/nginx.conf.template
 
 # Создай entrypoint скрипт
 RUN echo '#!/bin/sh\n\
