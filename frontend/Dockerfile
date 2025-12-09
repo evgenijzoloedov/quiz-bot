@@ -1,7 +1,7 @@
 # Stage 1: Build React app
 FROM node:18-alpine as builder
 
-WORKDIR /app
+WORKDIR frontend/app
 
 COPY frontend/package*.json ./
 RUN npm install --omit=dev
