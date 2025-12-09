@@ -41,3 +41,10 @@ mongo_data/
 # Testing
 coverage/
 
+# Backups
+backup/
+backups/
+*.bson
+*.metadata.json
+*.tar.gz
+*.zip
