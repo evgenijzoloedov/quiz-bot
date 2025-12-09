@@ -21,7 +21,7 @@ FROM nginx:alpine
 EXPOSE 3000
 
 # Copy nginx config из контекста сборки (корень проекта)
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy built app из builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
