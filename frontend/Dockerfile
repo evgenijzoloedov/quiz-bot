@@ -3,6 +3,9 @@ FROM node:18-alpine as builder
 
 WORKDIR /app
 
+# Copy nginx config ПЕРВЫМ
+COPY nginx.conf .
+
 # Copy package files
 COPY package*.json ./
 
@@ -20,8 +23,8 @@ FROM nginx:alpine
 
 EXPOSE 3000
 
-# Copy nginx config из контекста сборки (корень проекта)
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx config ИЗ builder stage
+COPY --from=builder /app/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy built app из builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
