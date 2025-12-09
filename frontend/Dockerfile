@@ -3,10 +3,10 @@ FROM node:18-alpine as builder
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY frontend/package*.json ./
 RUN npm install --omit=dev
 
-COPY . .
+COPY frontend/ .
 RUN npm run build
 
 # Stage 2: Serve with Nginx
