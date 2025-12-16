@@ -1,12 +1,14 @@
 import axios, { AxiosError } from 'axios';
 import type { InternalAxiosRequestConfig } from 'axios';
 
-// Используем относительный путь - nginx проксирует /api на backend
+// В development используем полный URL, в production - относительный (nginx проксирует)
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const isDevelopment = import.meta.env.DEV;
+const baseURL = isDevelopment ? `${API_URL}/api` : '/api';
 
-console.log('API Base URL:', API_URL);
+console.log('API Base URL:', baseURL);
 const apiClient = axios.create({
-	baseURL: `/api`,
+	baseURL,
 	headers: {
 		'Content-Type': 'application/json',
 	},

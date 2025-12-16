@@ -8,7 +8,8 @@
     "dev": "nodemon src/index.js",
     "lint": "eslint src/",
     "seed": "node src/utils/seed.js",
-    "backup": "bash ../backup.sh"
+    "backup": "bash ../backup.sh",
+    "extract-answers": "node extract-correct-answers.js"
   },
   "keywords": [
     "telegram",

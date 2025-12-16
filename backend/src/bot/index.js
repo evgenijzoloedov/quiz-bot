@@ -170,6 +170,10 @@ const initBot = () => {
 			else if (data.startsWith('confirm_')) {
 				await handleMultipleConfirm(bot, chatId, userId, data);
 			}
+			// Retry question after wrong answer
+			else if (data.startsWith('retry_')) {
+				await handleRetry(bot, chatId, userId);
+			}
 
 			await bot.answerCallbackQuery(query.id);
 		} catch (error) {
@@ -650,6 +654,18 @@ async function handleWrongAnswer(bot, chatId, session) {
 			.sort({ order: 1, createdAt: 1 })
 			.lean();
 
+		// Create retry button
+		const retryKeyboard = {
+			inline_keyboard: [
+				[
+					{
+						text: '🔄 Попробовать еще раз',
+						callback_data: `retry_${session.currentQuestionIndex}`,
+					},
+				],
+			],
+		};
+
 		if (failImages && failImages.length > 0) {
 			// Get image at current index
 			const currentImage =
@@ -664,6 +680,7 @@ async function handleWrongAnswer(bot, chatId, session) {
 				try {
 					await bot.sendPhoto(chatId, fs.createReadStream(imagePath), {
 						caption: '❌ Упал мкс, попробуйте еще раз',
+						reply_markup: retryKeyboard,
 					});
 					logger.debug(
 						`Fail image sent: ${imagePath} (index: ${session.failImageIndex})`
@@ -671,26 +688,61 @@ async function handleWrongAnswer(bot, chatId, session) {
 				} catch (photoError) {
 					logger.error(`Failed to send fail image: ${imagePath}`, photoError);
 					// Fallback to text message
-					await bot.sendMessage(chatId, '❌ Упал мкс, попробуйте еще раз');
+					await bot.sendMessage(chatId, '❌ Упал мкс, попробуйте еще раз', {
+						reply_markup: retryKeyboard,
+					});
 				}
 			} else {
 				logger.warn(`Fail image not found: ${imagePath}`);
-				await bot.sendMessage(chatId, '❌ Упал мкс, попробуйте еще раз');
+				await bot.sendMessage(chatId, '❌ Упал мкс, попробуйте еще раз', {
+					reply_markup: retryKeyboard,
+				});
 			}
 
 			// Increment index for next wrong answer (circular)
 			session.failImageIndex = (session.failImageIndex + 1) % failImages.length;
 		} else {
 			// No fail images available, just send text message
-			await bot.sendMessage(chatId, '❌ Упал мкс, попробуйте еще раз');
+			await bot.sendMessage(chatId, '❌ Упал мкс, попробуйте еще раз', {
+				reply_markup: retryKeyboard,
+			});
 		}
 
-		// Resend the same question
-		await sendQuestion(bot, chatId, session);
+		// Don't resend question automatically - wait for retry button click
 	} catch (error) {
 		logger.error('Error in handleWrongAnswer', error);
 		throw error;
 	}
+}
+
+// Handle retry button click
+async function handleRetry(bot, chatId, userId) {
+	const session = userSessions.get(userId);
+
+	if (!session || !session.selectedName) {
+		return bot.sendMessage(chatId, '⏰ Сеанс истёк. Начните заново: /start');
+	}
+
+	if (session.isExpired()) {
+		userSessions.delete(userId);
+		return bot.sendMessage(chatId, '⏰ Сеанс истёк. Начните заново: /start');
+	}
+
+	if (!session.quiz || !session.quiz.questions) {
+		logger.error('Quiz or questions not found in session');
+		return bot.sendMessage(chatId, '⏰ Ошибка сессии. Начните заново: /start');
+	}
+
+	if (
+		session.currentQuestionIndex < 0 ||
+		session.currentQuestionIndex >= session.quiz.questions.length
+	) {
+		logger.error(`Invalid question index: ${session.currentQuestionIndex}`);
+		return bot.sendMessage(chatId, '⏰ Ошибка сессии. Начните заново: /start');
+	}
+
+	// Resend the same question
+	await sendQuestion(bot, chatId, session);
 }
 
 // Complete quiz
